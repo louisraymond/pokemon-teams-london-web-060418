@@ -5,11 +5,15 @@ const POKEMONS_URL = `${BASE_URL}/pokemons`
 document.addEventListener('DOMContentLoaded',init)
 
 function init(){
+  getTrainers()
+  detectReleaseClick()
+}//end of init
+
+function getTrainers() {
   fetch(TRAINERS_URL)
   .then(res => res.json())
   .then(json => TrainerCardRender(json))
-  .then(detectReleaseClick())
-}//end of init
+}
 
 function createTrainerContainer (item) {
   trainerDiv = document.createElement('div')
@@ -19,26 +23,30 @@ function createTrainerContainer (item) {
   return trainerDiv
 }
 
-function createAddButton() {
+function createAddButton(trainer_id) {
   submitButton = document.createElement('button')
   submitButton.innerText = 'Add Pokemon!!!!!'
-  submitButton.addEventListener('click', (e) => {
-    e.preventDefault()
-    createPokemon()
+  submitButton.addEventListener('click', () => {
+    createPokemon(trainer_id)
+    window.location.reload()
   })
   return submitButton
 }
 
 
-function createPokemon() {
+function createPokemon(trainer_id) {
+  console.log(trainer_id)
   fetch(POKEMONS_URL, {
   method:"post",
+  body: JSON.stringify({
+      trainer_id: trainer_id
+    }),
+  headers: {
+    'Content-Type': 'application/json'
+  }
   })
   .then(res => res.json())
-  .then(res => {
-    console.log('Deleted:', res.message)
-    return res
-  })
+  .then(json => {console.log(json)})
   .catch(err => console.error(err))
 }
 
@@ -55,28 +63,29 @@ function createPokemonsList(trainer) {
 
 function catchPokemon(iThPokemon){
   pokemonInfo = document.createElement('li')
-  pokemonInfo.id = iThPokemon.id
   pokemonInfo.innerHTML = `${iThPokemon.nickname} (${iThPokemon.species})`
   buttonX = document.createElement('button')
+  buttonX.id = iThPokemon.id
   buttonX.innerText = "Release"
 }
 
 function detectReleaseClick (){
-  let cards = document.getElementsByClassName('card')
-  for(card of cards) {
-    addEventListener('click', function(e){
-      if(e.target.innerText === 'Release') {
-        let pokemonId = e.target.parentNode.id
-        deletePokemon(pokemonId)
-        // let elementToRemove = e.target.parentNode
-        // document.getElementBy
-      }
-    })
-  }
+  let main = document.querySelector('main')
+  console.log(main);
+
+  main.addEventListener('click', function(e){
+    console.log(e.target)
+    if(e.target.innerText === 'Release') {
+      let pokemonId = e.target.id
+      deletePokemon(pokemonId)
+      window.location.reload()
+    }
+  })
 }
 
 
 function deletePokemon(id){
+    console.log(POKEMONS_URL + `/${id}`)
     fetch(POKEMONS_URL + `/${id}` , {
     method:"delete",
     })
@@ -92,8 +101,9 @@ function deletePokemon(id){
 function TrainerCardRender(data){
   for (let i = 0; i < data.length; i++) {
     trainerDiv = createTrainerContainer(data[i])
-    trainerDiv.append(createAddButton(),createPokemonsList(data[i]))
-    document.body.appendChild(trainerDiv)
+    trainerDiv.append(createAddButton(data[i].id),createPokemonsList(data[i]))
+    main = document.querySelector('main')
+    main.appendChild(trainerDiv)
     console.log("rendered cards")
   }//end of trainerCardRender
 }
