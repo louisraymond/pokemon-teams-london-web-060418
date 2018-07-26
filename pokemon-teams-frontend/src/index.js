@@ -37,17 +37,14 @@ function createAddButton(trainer_id) {
 function createPokemon(trainer_id) {
   console.log(trainer_id)
   fetch(POKEMONS_URL, {
-  method:"post",
-  body: JSON.stringify({
-      trainer_id: trainer_id
-    }),
-  headers: {
-    'Content-Type': 'application/json'
-  }
+    method:"post",
+    body: JSON.stringify({
+        trainer_id: trainer_id
+      }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
   })
-  .then(res => res.json())
-  .then(json => {console.log(json)})
-  .catch(err => console.error(err))
 }
 
 function createPokemonsList(trainer) {
@@ -66,15 +63,13 @@ function catchPokemon(iThPokemon){
   pokemonInfo.innerHTML = `${iThPokemon.nickname} (${iThPokemon.species})`
   buttonX = document.createElement('button')
   buttonX.id = iThPokemon.id
+  buttonX.className = "release"
   buttonX.innerText = "Release"
 }
 
 function detectReleaseClick (){
   let main = document.querySelector('main')
-  console.log(main);
-
   main.addEventListener('click', function(e){
-    console.log(e.target)
     if(e.target.innerText === 'Release') {
       let pokemonId = e.target.id
       deletePokemon(pokemonId)
@@ -83,20 +78,15 @@ function detectReleaseClick (){
   })
 }
 
-
 function deletePokemon(id){
     console.log(POKEMONS_URL + `/${id}`)
-    fetch(POKEMONS_URL + `/${id}` , {
-    method:"delete",
+    fetch(POKEMONS_URL + `/${id}`, {
+      method:"delete",
     })
     .then(res => res.json())
-    .then(res => {
-      console.log('Deleted:', res.message)
-      return res
-    })
+    .then(res => {return res})
     .catch(err => console.error(err))
 }
-
 
 function TrainerCardRender(data){
   for (let i = 0; i < data.length; i++) {
